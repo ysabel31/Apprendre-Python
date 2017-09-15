@@ -1,23 +1,28 @@
 from flask import Flask,request
 from flask_restful import Resource, Api
+from flask_jwt import JWT, jwt_required
+from security import authenticate, identity
 
 #jsonify is a method not a class
 app = Flask(__name__)
+app.secret_key= 'gqfdgqf'
 api = Api(app)
 
+jwt = JWT(app, authenticate, identity) # /auth
 items =[]
 # define resource Student
 class Item(Resource):
     # define methods that this ressource accepts
     # item is going to be a dictionarya dictionary
     # no longer need to do jsonify beacuse when using Flask RESTful does it for us    
+    @jwt_required()
     def get(self, name):
         #for item in items:
         #    if item['name'] == name:
         #        return item
         # filter usage next give us the first item encountered, 
         # generate an error if no item found, with None it will return a None
-        item = next(filter(lambda: { x = x['name']==name,items, None}))
+        item = next(filter(lambda x : x['name'] == name, items) , None )
         return {'item':item}, 200 if item else 404
                     
     def post(self, name):
@@ -29,8 +34,8 @@ class Item(Resource):
 
         # get_json(silent=True)
         # it doesn't give an error just return none
-        if next(filter(lambda: { x = x['name']==name,items, None})):
-             return {'message':An item with name'{}"already exists.'".format(name)} 
+        if next(filter(lambda x : x['name'] == name, items), None):
+             return {'message': "An item with name'{}'already exists.".format(name)} 
         data = request.get_json()
         item = {'name' : name, 'price':data['price']}    
         items.append(item)
