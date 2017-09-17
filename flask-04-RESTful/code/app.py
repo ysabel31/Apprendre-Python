@@ -1,15 +1,15 @@
-from flask import Flask,request
+from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 from security import authenticate, identity
 
-#jsonify is a method not a class
+# jsonify is a method not a class
 app = Flask(__name__)
 app.secret_key= 'gqfdgqf'
 api = Api(app)
 
 jwt = JWT(app, authenticate, identity) # /auth
-items =[]
+items = []
 # define resource Student
 class Item(Resource):
     # define methods that this ressource accepts
@@ -34,10 +34,11 @@ class Item(Resource):
         return {'item':item}, 200 if item else 404
                     
     def post(self, name):
-        data = Item.parser.parse_args()
-        
+        # Veryfy before doing something
         if next(filter(lambda x : x['name'] == name, items), None):
              return {'message': "An item with name'{}'already exists.".format(name)} 
+
+        data = Item.parser.parse_args()     
 
         # get_json(force=True)
         # You don't need content type Header, 
