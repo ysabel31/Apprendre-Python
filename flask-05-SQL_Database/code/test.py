@@ -35,4 +35,3 @@ for row in cursor.execute(select_query):
     print(row)
 #print("fin select")
 connection.close()
- 
