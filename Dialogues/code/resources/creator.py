@@ -34,3 +34,7 @@ class Creator(Resource):
             return creator.json(), 200
         else:
             return{"message":"Creator not found"}, 404
+
+    def delete(self, firstname, lastname):
+        # next iteration must before deleting a creator verify items 
+        pass

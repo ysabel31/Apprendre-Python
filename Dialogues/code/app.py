@@ -8,7 +8,7 @@ from flask_jwt import JWT
 from security import authenticate, identity
 from resources.user import UserRegister
 from resources.creator import Creator
-
+from resources.media import Media
 #jsonify is a method not a class
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dialogues.db'
@@ -26,8 +26,11 @@ def create_tables():
 jwt = JWT(app, authenticate, identity) # /auth
 
 api.add_resource(UserRegister, '/register') 
+
 api.add_resource(Creator, '/creator')
- 
+
+#api.add_resource(Media, '/media') 
+
 # __main__ is the special name assign by python for the file we run
 # allow us to not execute app.run if app.py is imported into another program
 if __name__ == '__main__':
