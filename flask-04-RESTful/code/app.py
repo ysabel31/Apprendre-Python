@@ -12,6 +12,12 @@ jwt = JWT(app, authenticate, identity) # /auth
 items = []
 # define resource Student
 class Item(Resource):
+    # Resources are built on top of Flask pluggable views, 
+    # giving you easy access to multiple HTTP methods 
+    # just by defining methods on your resource    
+    # In this case Resource Item is added below
+    # api.add_resource(Item, '/item/<string:name>')
+
     # define methods that this ressource accepts
     # item is going to be a dictionarya dictionary
     # no longer need to do jsonify beacuse when using Flask RESTful does it for us    

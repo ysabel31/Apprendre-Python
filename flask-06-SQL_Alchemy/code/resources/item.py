@@ -1,4 +1,3 @@
-import sqlite3
 from flask_restful import Resource,reqparse
 from flask_jwt import jwt_required
 from models.item import ItemModel
@@ -23,7 +22,10 @@ class Item(Resource):
                          required=True,
                          help = "This field cannot be left blank !")
 
-    
+    parser.add_argument('store_id',
+                         type=int,
+                         required=True,
+                         help = "Every Item need a store id !")
     
 
     @jwt_required()
@@ -40,8 +42,8 @@ class Item(Resource):
 
         data = Item.parser.parse_args()
         
-        item = ItemModel(name, data['price'])    
-
+        #item = ItemModel(name, data['price', data['store_id'])    
+        item = ItemModel(name, **data)    
         try:
             item.save_to_db()
         except:
@@ -62,7 +64,8 @@ class Item(Resource):
 
         # if not found create item
         if item is None:     
-            item = ItemModel(name , data['price']) 
+            #item = ItemModel(name , data['price'], data['store_id']) 
+            item = ItemModel(name , **data) 
         else:        
             item.price = data['price'] 
 
@@ -74,20 +77,6 @@ class Item(Resource):
 class ItemList(Resource):
     # Define methods that this ressource accepts     
     def get(self):
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-
-        query = "SELECT * FROM items"
-        result = cursor.execute(query)
-        items = []
-
-        for row in result:
-            items.append(
-                         { 'name'  : row[0],
-                           'price' : row[1]
-                         }
-                        )
+        return {'items' : [ item.json() for item in ItemModel.query.all()]}
+        # = return {'items' : list(map(lambda x : x.json(), ItemModel.query.all()))}
         
-        connection.close()
-        
-        return {'items': items}

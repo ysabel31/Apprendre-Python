@@ -11,10 +11,9 @@ class Item(Resource):
     # In this case Item Resource is added in app.py with this line :
     # api.add_resource(Item, '/item/<string:name>')
 
-    # define methods that this ressource accepts
-    # item is going to be a dictionarya dictionary
-    # no longer need to do jsonify beacuse when using Flask RESTful 
-    # does it for us    
+    # below is defined methods that this ressource accepts
+    # item is going to be a dictionary
+    # no longer need to do jsonify because Flask RESTful does it for us    
 
     # To make sure that price is passed in
     parser = reqparse.RequestParser()
@@ -72,21 +71,13 @@ class Item(Resource):
              return {'message': "An item with name'{}'already exists.".format(name)} 
 
         data = Item.parser.parse_args()
-        # get_json(force=True)
-        # You don't need content type Header, 
-        # it will just look in the content and it will format 
-        # even if the content type header is not set application/json
-        # dangerous 
-        # get_json(silent=True)
-        # it doesn't give an error just return none    
-
-        #data = request.get_json()
+        
         item = {'name' : name, 'price':data['price']}    
         try:
             self.insert(item)
         except:
             return{'message':'An error occur inserting the item'}, 500 # Internal server error 
-        #alawys return JSON
+        
         return item, 201
 
     def delete(self,name):
