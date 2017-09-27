@@ -3,14 +3,18 @@ from db import db
 class MediaModel(db.Model):
     
     __tablename = 'medias'  
-    id = db.column(db.Integer, primary_key = True )
+    id = db.Column(db.Integer, primary_key=True)
     name = db.column(db.String(80))
 
     def __init__(self, name):
         self.name = name
    
-    def save_to_db(self, name):
+    def save_to_db(self):
         db.session.add(self)
+        db.session.commit()
+
+    def delete_to_db(self):
+        db.session.delete(self)
         db.session.commit()
 
     def json(self):

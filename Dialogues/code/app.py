@@ -27,7 +27,7 @@ jwt = JWT(app, authenticate, identity) # /auth
 
 api.add_resource(UserRegister, '/register') 
 
-api.add_resource(Creator, '/creator')
+api.add_resource(Creator, '/creator/<string:lastname>/<string:firstname>')
 
 #api.add_resource(Media, '/media') 
 

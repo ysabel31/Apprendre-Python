@@ -11,7 +11,10 @@ class Media(Resource):
                         help="Media name cannot be blank ")
 
     def get(self, name):
+        #input check
         data = Media.parser.parse_args()  
+        # Search database 
+        # **data = json from the request body converted into dict
         media = MediaModel.find_by_name(**data)
         if media:
             return media.json(), 200
@@ -29,7 +32,8 @@ class Media(Resource):
         # ie name = value
         media.save_to_db()
 
-    def put(self):
-        pass
-    def del(self):
-        pass                
+    def delete(self):
+        media = MediaModel.find_by_name(name)
+        if media:
+            media.delete_from_db()
+        return {'message': 'Media deleted'},200                
