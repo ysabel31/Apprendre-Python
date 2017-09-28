@@ -7,7 +7,7 @@ from flask_jwt import JWT
 
 from security import authenticate, identity
 from resources.user import UserRegister
-from resources.creator import Creator
+from resources.creator import Creator, CreatorList
 from resources.media import Media
 #jsonify is a method not a class
 app = Flask(__name__)
@@ -27,7 +27,8 @@ jwt = JWT(app, authenticate, identity) # /auth
 
 api.add_resource(UserRegister, '/register') 
 
-api.add_resource(Creator, '/creator/<string:lastname>/<string:firstname>')
+api.add_resource(Creator,'/creator/<int:_id>')
+api.add_resource(CreatorList, '/creator')
 
 #api.add_resource(Media, '/media') 
 

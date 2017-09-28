@@ -1,26 +1,40 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from webargs import fields
+from webargs.flaskparser import use_args
 from models.creator import CreatorModel
 
 class Creator(Resource):
-    parser = reqparse.RequestParser()
-
-    parser.add_argument('firstname', 
-                        type=str,
-                        required=True,
-                        help="First name cannot be blank!")
-
-    parser.add_argument('lastname', 
-                        type=str,
-                        required=True,
-                        help="Last name cannot be blank!")
+    def get(self, _id):
+        creator = CreatorModel.find_by_id(_id)
     
+        if creator:
+            return creator.json(), 200 # OK
+        else:
+            return{"message":"Creator not found"}, 404 #not found
+
+    def delete(self, firstname, lastname):
+        creator = CreatorModel.find_by_name(firstname, lastname)
+        if creator:
+            creator.delete_from_db()
+        return {'message': "Creator named {} {} has been deleted".format(lastname,firstname)},200
+
+class CreatorList(Resource):    
+
+    args = {'firstname' : fields.String,
+            'lastname' : fields.String}        
+    
+    def get(self):       
+        creator = CreatorModel.find_by_name(**data)
+        if creator:
+            print("json")
+            return creator.json(), 200 # OK
+        else:
+            return{"message":"Creator not found"}, 404 #not found
+
+    @use_args(args)        
     def post(self):
-        #input check
-        data = Creator.parser.parse_args()  
-        # Search database 
-        # **data = json from the request body converted into dict
         if CreatorModel.find_by_name(**data):
-            return {"message":"A creator named {} {} already exists".format(data['lastname']).format(data['firstname'])}, 400 # Bad request
+            return {"message":"A creator named {} {} already exists".format(data['lastname'],data['firstname'])}, 400 # Bad request
 
         creator = CreatorModel(**data)   
         # creator = CreatorModel(data['username'], data['password'])
@@ -29,16 +43,3 @@ class Creator(Resource):
         creator.save_to_db()
 
         return{"message":"Creator created successfully"}, 201 # created
-
-    def get(self, lastname, firstname):
-        creator = CreatorModel.find_by_name(firstname, lastname)
-        if creator:
-            return creator.json(), 200 # OK
-        else:
-            return{"message":"Creator not found"}, 404 #not found
-
-    def delete(self, firstname, lastname):
-        store = StoreModel.find_by_name(name)
-        if store:
-            store.delete_from_db()
-        return {'message': 'Store deleted'},200
