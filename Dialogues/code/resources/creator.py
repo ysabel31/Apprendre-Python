@@ -20,23 +20,28 @@ class Creator(Resource):
 
 class CreatorList(Resource):    
 
-    args = {'firstname' : fields.String,
-            'lastname' : fields.String}        
-    
-    def get(self):       
-        creator = CreatorModel.find_by_name(**data)
+    args = {
+         'lastname'  : fields.String(required = True,
+                                     error_messages = { "required": "Creator lastname cannot be blank"}),
+         'firstname' : fields.String(required = True, 
+                                     error_messages = {"required":"Creator firstname cannot be blank"}),
+    }       
+
+    @use_args(args)       
+    def get(self,args):       
+        creator = CreatorModel.find_by_name(**args)
         if creator:
-            print("json")
             return creator.json(), 200 # OK
         else:
             return{"message":"Creator not found"}, 404 #not found
 
     @use_args(args)        
-    def post(self):
-        if CreatorModel.find_by_name(**data):
-            return {"message":"A creator named {} {} already exists".format(data['lastname'],data['firstname'])}, 400 # Bad request
+    def post(self, args):
+        
+        if CreatorModel.find_by_name(**args):
+            return {"message":"A creator named {} {} already exists".format(args['lastname'],args['firstname'])}, 400 # Bad request
 
-        creator = CreatorModel(**data)   
+        creator = CreatorModel(**args)   
         # creator = CreatorModel(data['username'], data['password'])
         # for each of the keys in data say key = value  
         # ie username = value, password = value

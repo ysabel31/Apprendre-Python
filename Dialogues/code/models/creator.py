@@ -33,4 +33,4 @@ class CreatorModel(db.Model):
 
     @classmethod
     def find_by_name(cls, lastname, firstname):
-        return cls.query.filter_by(lastname=lastname,firstname=firstname).first() 
+        return cls.query.filter_by(firstname=firstname,lastname=lastname ).first() 
