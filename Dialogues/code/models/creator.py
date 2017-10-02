@@ -12,7 +12,7 @@ class CreatorModel(db.Model):
         self.firstname = firstname
         self.lastname = lastname
 
-    def delete_to_db(self):
+    def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()    
     

@@ -6,9 +6,11 @@ from flask_restful import Api
 from flask_jwt import JWT
 
 from security import authenticate, identity
-from resources.user import UserRegister
+from resources.user import User, UserList, UserRegister
+from resources.category import Category, CategoryList
 from resources.creator import Creator, CreatorList
-from resources.media import Media
+from resources.media import Media, MediaList
+from resources.item import Item, ItemList
 #jsonify is a method not a class
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dialogues.db'
@@ -25,11 +27,21 @@ def create_tables():
 
 jwt = JWT(app, authenticate, identity) # /auth
 
-api.add_resource(UserRegister, '/register') 
+api.add_resource(User,'/user/<int:_id>')
+api.add_resource(UserRegister, '/user/register') 
+api.add_resource(UserList, '/user')
+
+api.add_resource(Category,'/category/<int:_id>')
+api.add_resource(CategoryList, '/category')
 
 api.add_resource(Creator,'/creator/<int:_id>')
 api.add_resource(CreatorList, '/creator')
 
+api.add_resource(Media,'/media/<int:_id>')
+api.add_resource(MediaList, '/media')
+
+api.add_resource(Media,'/item/<int:_id>')
+api.add_resource(MediaList, '/item')
 #api.add_resource(Media, '/media') 
 
 # __main__ is the special name assign by python for the file we run

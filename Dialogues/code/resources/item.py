@@ -1,9 +1,9 @@
 from flask_restful import Resource
 from webargs import fields
 from webargs.flaskparser import use_args
-from models.media import MediaModel
+from models.item import ItemModel
 
-class Media(Resource):
+class Item(Resource):
     def get(self, _id):
         media = MediaModel.find_by_id(_id)
         if media:
@@ -20,10 +20,19 @@ class Media(Resource):
 
         return {'message': "No media category {} to delete".format(media.category)},200        
     
-class MediaList(Resource):    
+class ItemList(Resource):    
     args = {
-            'category' : fields.String(required=True,
-                                   error_messages = {"required":"Media category cannot be blank"}),
+            creator_id = fields.Integer(required=True,
+                                        error_messages = {"required":"Creator id cannot be blank"}),
+            media_id = fields.Integer(required=True,
+                                        error_messages = {"required":"Media id cannot be blank"}),
+            category_id = fields.Integer(required=True,
+                                        error_messages = {"required":"Category id cannot be blank"}),
+            EAN = fields.Integer(),
+            ASIN = fields.Integer(),
+            name = fields.String(),
+            synopsys = fields.String(),
+            creation_date= fields.DateTime()),
     }
         
     @use_args(args)       
