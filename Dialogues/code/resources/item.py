@@ -5,62 +5,62 @@ from models.item import ItemModel
 
 class Item(Resource):
     def get(self, _id):
-        media = MediaModel.find_by_id(_id)
-        if media:
-            return media.json(), 200
+        item = ItemModel.find_by_id(_id)
+        if item:
+            return item.json(), 200
         else:
-            return{"message":"Media category not found"}, 404
+            return{"message":"Item id not found"}, 404
 
     def delete(self, _id):
-        media = MediaModel.find_by_id(_id)
+        item = ItemModel.find_by_id(_id)
         
-        if media:
-            media.delete_from_db()
-            return {'message': "media category {} has been deleted".format(media.category)},200        
+        if item:
+            item.delete_from_db()
+            return {'message': "item id {} has been deleted".format(item.id)},200        
 
-        return {'message': "No media category {} to delete".format(media.category)},200        
+        return {'message': "No item id {} to delete".format(item.category)},200        
     
 class ItemList(Resource):    
     args = {
-            creator_id = fields.Integer(required=True,
-                                        error_messages = {"required":"Creator id cannot be blank"}),
-            media_id = fields.Integer(required=True,
-                                        error_messages = {"required":"Media id cannot be blank"}),
-            category_id = fields.Integer(required=True,
-                                        error_messages = {"required":"Category id cannot be blank"}),
-            EAN = fields.Integer(),
-            ASIN = fields.Integer(),
-            name = fields.String(),
-            synopsys = fields.String(),
-            creation_date= fields.DateTime()),
+            'creator_id'    : fields.Integer(required=True,
+                                             error_messages = {"required":"Creator id cannot be blank"}),
+            'media_id'      : fields.Integer(required=True,
+                                             error_messages = {"required":"Media id cannot be blank"}),
+            'category_id'   : fields.Integer(required=True,
+                                             error_messages = {"required":"Category id cannot be blank"}),
+            'EAN'           : fields.Integer(),
+            'ASIN'          : fields.Integer(),
+            'name'          : fields.String(),
+            'synopsys'      : fields.String(),
+            'creation_date' : fields.DateTime(),
     }
         
     @use_args(args)       
     def get(self,args):       
-        media = MediaModel.find_by_category(**args)
-        if media:
-            return media.json(), 200 # OK
+        item = ItemModel.find_by_category(**args)
+        if item:
+            return item.json(), 200 # OK
         else:
-            return{"message":"Media category {} not found".format(args['category'])}, 404 #not found
+            return{"message":"Item category {} not found".format(args['category'])}, 404 #not found
 
     @use_args(args)         
     def post(self,args):
-        if MediaModel.find_by_category(args['category']):
-            return {"message":"A media category {} already exists".format(args['category'])}, 400
+        if ItemModel.find_by_name(args['name']):
+            return {"message":"An item name {} already exists".format(args['name'])}, 400
 
-        media = MediaModel(**args)   
+        item = ItemModel(**args)   
         # media = MediaModel(data['name'])
         # for each of the keys in data say key = value  
         # ie name = value
-        media.save_to_db()    
+        item.save_to_db()    
         return{"message":"media {} created successfully".format(args['category'])}, 201 # crea
 
     @use_args(args)         
     def delete(self, args):
-        media = MediaModel.find_by_category(args['category'])
+        item = ItemModel.find_by_name(args['name'])
 
-        if media:
-            media.delete_from_db()
+        if item:
+            item.delete_from_db()
             return {'message': "media category {} has been deleted".format(args['category'])},200    
 
         return {'message': "No media category {} to delete".format(args['category'])},200            

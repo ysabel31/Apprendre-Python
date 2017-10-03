@@ -40,8 +40,8 @@ api.add_resource(CreatorList, '/creator')
 api.add_resource(Media,'/media/<int:_id>')
 api.add_resource(MediaList, '/media')
 
-api.add_resource(Media,'/item/<int:_id>')
-api.add_resource(MediaList, '/item')
+api.add_resource(Item,'/item/<int:_id>')
+api.add_resource(ItemList, '/item')
 #api.add_resource(Media, '/media') 
 
 # __main__ is the special name assign by python for the file we run

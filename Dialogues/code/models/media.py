@@ -1,7 +1,7 @@
 from db import db
 
 class MediaModel(db.Model):
-    __tablename__ = 'medias'  
+    __tablename__ = 'media'  
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(80))
 
