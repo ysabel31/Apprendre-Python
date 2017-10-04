@@ -46,14 +46,14 @@ class ItemList(Resource):
     @use_args(args)         
     def post(self,args):
         if ItemModel.find_by_name(args['name']):
-            return {"message":"An item name {} already exists".format(args['name'])}, 400
+            return {"message":"An item named {} already exists".format(args['name'])}, 400
 
         item = ItemModel(**args)   
         # media = MediaModel(data['name'])
         # for each of the keys in data say key = value  
         # ie name = value
         item.save_to_db()    
-        return{"message":"media {} created successfully".format(args['category'])}, 201 # crea
+        return{"message":"item {} created successfully".format(args['name'])}, 201 # crea
 
     @use_args(args)         
     def delete(self, args):
@@ -61,6 +61,6 @@ class ItemList(Resource):
 
         if item:
             item.delete_from_db()
-            return {'message': "media category {} has been deleted".format(args['category'])},200    
+            return {'message': "item {} has been deleted".format(args['name'])},200    
 
-        return {'message': "No media category {} to delete".format(args['category'])},200            
+        return {'message': "No item {} to delete".format(args['namecreator_id'])},200            

@@ -21,20 +21,28 @@ class Category(Resource):
 
 class CategoryList(Resource):    
 
-    args = {
+    args_required = {
          'name'  : fields.String(required = True,
                                  error_messages = { "required": "Category name cannot be blank"}),
     }       
 
-    @use_args(args)       
-    def get(self,args):       
-        category = CategoryModel.find_by_name(**args)
-        if category:
-            return category.json(), 200 # OK
-        else:
-            return{"message":"Category named {} {} not found ".format(args['name'])}, 404 #not found
+    args_optional = {
+         'name'  : fields.String(required = False),
+    }
 
-    @use_args(args)        
+    @use_args(args_optional)       
+    def get(self,args):       
+        categories = CategoryModel.find(**args)        
+
+        if categories:
+            categoriesJSON = []
+            for category in categories:
+                categoriesJSON.append(category.json())
+            return {"categories":categoriesJSON},200 #OK    
+        else:
+            return{"message" : "Category named {} not found ".format(args['name'])}, 404 #not found
+
+    @use_args(args_required)        
     def post(self, args):
         
         if CategoryModel.find_by_name(**args):
@@ -48,7 +56,7 @@ class CategoryList(Resource):
 
         return{"message":"Category {} created successfully".format(args['name'])}, 201 # created
 
-    @use_args(args)         
+    @use_args(args_required)         
     def delete(self,args):
         category = CategoryModel.find_by_name(**args)
         if category:

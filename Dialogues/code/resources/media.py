@@ -25,12 +25,21 @@ class MediaList(Resource):
             'category' : fields.String(required=True,
                                    error_messages = {"required":"Media category cannot be blank"}),
     }
-        
-    @use_args(args)       
+    
+    args_optional = {
+        'category' : fields.String(required=False),
+    }    
+
+    @use_args(args_optional)             
     def get(self,args):       
-        media = MediaModel.find_by_category(**args)
-        if media:
-            return media.json(), 200 # OK
+        medias = MediaModel.find(**args)      
+
+        if medias:
+            mediasJSON = []
+            for media in medias:
+                mediasJSON.append(media.json())
+
+            return {"medias":mediasJSON}, 200 # OK
         else:
             return{"message":"Media category {} not found".format(args['category'])}, 404 #not found
 

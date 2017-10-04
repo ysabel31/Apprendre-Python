@@ -22,6 +22,12 @@ class CategoryModel(db.Model):
         db.session.commit()
 
     @classmethod
+    def find(cls, name=None):
+        if name:
+            return cls.query.filter_by(name=name).all()        
+        return cls.query.filter_by().all()   
+
+    @classmethod
     def find_by_id(cls, _id):
         return cls.query.filter_by(id=_id).first()        
 
