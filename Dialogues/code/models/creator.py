@@ -8,9 +8,11 @@ class CreatorModel(db.Model):
     firstname = db.Column(db.String(80))
     lastname = db.Column(db.String(80))
 
-    def __init__(self, firstname,lastname):
-        self.firstname = firstname
-        self.lastname = lastname
+    def __init__(self, lastname, firstname=None):
+        if firstname:
+            self.firstname = firstname
+        if lastname:    
+            self.lastname = lastname
 
     def delete_from_db(self):
         db.session.delete(self)
@@ -29,8 +31,19 @@ class CreatorModel(db.Model):
 
     @classmethod
     def find_by_lastname(cls, lastname):
-        return cls.query.filter_by(lastname=lastname).first()
+        #users = User.query.filter(func.soundex(User.name) == func.soundex('Tina')).all()
+        return cls.query.filter(db.func.soundex(CreatorModel.lastname) == db.func.soundex(lastname)).first()
 
     @classmethod
-    def find_by_name(cls, lastname, firstname):
-        return cls.query.filter_by(firstname=firstname,lastname=lastname ).first() 
+    def find(cls, lastname=None, firstname=None):
+        filters = []
+
+        if lastname:
+            filters.append(db.func.soundex(CreatorModel.lastname) == db.func.soundex(lastname))
+        if firstname:
+            filters.append(db.func.soundex(CreatorModel.firstname) == db.func.soundex(firstname))        
+
+        if len(filters) > 0:    
+            return cls.query.filter(*filters).all()
+        else: 
+            return cls.query.all()

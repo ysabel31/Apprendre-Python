@@ -21,7 +21,7 @@ class Item(Resource):
         return {'message': "No item id {} to delete".format(item.category)},200        
     
 class ItemList(Resource):    
-    args = {
+    args_required = {
             'creator_id'    : fields.Integer(required=True,
                                              error_messages = {"required":"Creator id cannot be blank"}),
             'media_id'      : fields.Integer(required=True,
@@ -30,22 +30,38 @@ class ItemList(Resource):
                                              error_messages = {"required":"Category id cannot be blank"}),
             'EAN'           : fields.Integer(),
             'ASIN'          : fields.Integer(),
+            'name'          : fields.String(required=True,
+                                            error_messages = {"required":"Name cannot be blank"}),
+            'synopsys'      : fields.String(),
+            'creation_date' : fields.DateTime(),
+    }
+
+    args_optional = {
+            'creator_id'    : fields.Integer(required=False),
+            'media_id'      : fields.Integer(required=False),
+            'category_id'   : fields.Integer(required=False),
+            'EAN'           : fields.Integer(),
+            'ASIN'          : fields.Integer(),
             'name'          : fields.String(),
             'synopsys'      : fields.String(),
             'creation_date' : fields.DateTime(),
     }
         
-    @use_args(args)       
-    def get(self,args):       
-        item = ItemModel.find_by_category(**args)
-        if item:
-            return item.json(), 200 # OK
+    @use_args(args_optional)       
+    def get(self, args):       
+        items = ItemModel.find(**args)
+        if items:
+            itemsJSON = []
+            for item in items:
+                itemsJSON.append(item.json())
+            return { "items" : itemsJSON}, 200 # OK
         else:
-            return{"message":"Item category {} not found".format(args['category'])}, 404 #not found
+            return{"message":"Item {} not found".format(args['name'])}, 404 #not found
 
-    @use_args(args)         
-    def post(self,args):
-        if ItemModel.find_by_name(args['name']):
+    @use_args(args_required)         
+    def post(self, args):
+        
+        if ItemModel.find(strict=True, **args):
             return {"message":"An item named {} already exists".format(args['name'])}, 400
 
         item = ItemModel(**args)   
@@ -55,9 +71,9 @@ class ItemList(Resource):
         item.save_to_db()    
         return{"message":"item {} created successfully".format(args['name'])}, 201 # crea
 
-    @use_args(args)         
+    @use_args(args_required)         
     def delete(self, args):
-        item = ItemModel.find_by_name(args['name'])
+        item = ItemModel.find(**args)
 
         if item:
             item.delete_from_db()

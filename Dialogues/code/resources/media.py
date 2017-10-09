@@ -21,7 +21,7 @@ class Media(Resource):
         return {'message': "No media category {} to delete".format(media.category)},200        
     
 class MediaList(Resource):    
-    args = {
+    args_required = {
             'category' : fields.String(required=True,
                                    error_messages = {"required":"Media category cannot be blank"}),
     }
@@ -32,18 +32,16 @@ class MediaList(Resource):
 
     @use_args(args_optional)             
     def get(self,args):       
-        medias = MediaModel.find(**args)      
-
+        medias = MediaModel.find(**args)   
         if medias:
             mediasJSON = []
             for media in medias:
                 mediasJSON.append(media.json())
-
             return {"medias":mediasJSON}, 200 # OK
         else:
             return{"message":"Media category {} not found".format(args['category'])}, 404 #not found
 
-    @use_args(args)         
+    @use_args(args_required)         
     def post(self,args):
         if MediaModel.find_by_category(args['category']):
             return {"message":"A media category {} already exists".format(args['category'])}, 400
@@ -55,7 +53,7 @@ class MediaList(Resource):
         media.save_to_db()    
         return{"message":"media {} created successfully".format(args['category'])}, 201 # crea
 
-    @use_args(args)         
+    @use_args(args_required)         
     def delete(self, args):
         media = MediaModel.find_by_category(args['category'])
 

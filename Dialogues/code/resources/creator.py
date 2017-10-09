@@ -21,26 +21,40 @@ class Creator(Resource):
 
 class CreatorList(Resource):    
 
-    args = {
+    args_required = {
          'lastname'  : fields.String(required = True,
                                      error_messages = { "required": "Creator lastname cannot be blank"}),
-         'firstname' : fields.String(required = True, 
-                                     error_messages = {"required":"Creator firstname cannot be blank"}),
+         'firstname' : fields.String(required = False),
     }       
 
-    @use_args(args)       
-    def get(self,args):       
-        creator = CreatorModel.find_by_name(**args)
-        if creator:
-            return creator.json(), 200 # OK
-        else:
-            return{"message":"Creator called {} {} not found ".format(args['lastname'],args['firstname'])}, 404 #not found
+    args_optional = {
+         'lastname'   : fields.String(required = False),
+         'firstname'  : fields.String(required = False),         
+    }
 
-    @use_args(args)        
-    def post(self, args):
+    def ErrMsg(self,msg,args):
+        if 'lastname' in args.keys() & 'firstname' in args.keys():
+            return {"message":"Creator called {} {} {}".format(args['lastname'],args['firstname'],msg)}
+        elif 'lastname' in args.keys():                    
+            return {"message":"Creator lastname {} {} ".format(args['lastname'],msg)}
+        elif 'firstname' in args.keys():                    
+            return {"message":"Creator firstname {} {} ".format(args['firstname'],msg)}
         
-        if CreatorModel.find_by_name(**args):
-            return {"message":"A creator named {} {} already exists".format(args['lastname'],args['firstname'])}, 400 # Bad request
+    @use_args(args_optional)       
+    def get(self,args):       
+        creators = CreatorModel.find(**args)        
+        if creators:
+            creatorsJSON = []
+            for creator in creators:
+                creatorsJSON.append(creator.json())
+            return {"creators":creatorsJSON}, 200 # OK
+        else:
+            return self.ErrMsg("not found",args), 404 # Not found
+
+    @use_args(args_required)        
+    def post(self, args):
+        if CreatorModel.find(**args):
+            return self.ErrMsg("already exist",args), 400 # Bad request
 
         creator = CreatorModel(**args)   
         # creator = CreatorModel(data['username'], data['password'])
@@ -48,12 +62,12 @@ class CreatorList(Resource):
         # ie username = value, password = value
         creator.save_to_db()
 
-        return{"message":"Creator {} {} created successfully".format(args['lastname'],args['firstname'])}, 201 # created
+        return self.ErrMsg("created successfully",args), 201 # created
 
-    @use_args(args)         
+    @use_args(args_required)         
     def delete(self,args):
-        creator = CreatorModel.find_by_name(**args)
+        creator = CreatorModel.find(**args)
         if creator:
             creator.delete_from_db()
-            return {'message': "Creator named {} {} has been deleted".format(args['lastname'],args['firstname'])},200
-        return {'message': "No creator named {} {} to delete".format(args['lastname'],args['firstname'])},200    
+            return self.ErrMsg("has been deleted",args), 200
+        return self.ErrMsg("to delete",args), 200    
