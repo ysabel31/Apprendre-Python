@@ -11,6 +11,8 @@ from resources.category import Category, CategoryList
 from resources.creator import Creator, CreatorList
 from resources.media import Media, MediaList
 from resources.item import Item, ItemList
+from models.item import ItemModel
+
 #jsonify is a method not a class
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dialogues.db'
@@ -19,6 +21,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dialogues.db'
 # it does not turn off the SQLAlchemy modification tracker 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key= 'Breizh_or_not_Breizh'
+
+# set the location for the whoosh index
+app.config['WHOOSHEE_DIR'] = '../whoosh_index'
 api = Api(app)
 
 @app.before_first_request
@@ -47,6 +52,10 @@ api.add_resource(ItemList, '/item')
 # __main__ is the special name assign by python for the file we run
 # allow us to not execute app.run if app.py is imported into another program
 if __name__ == '__main__':
-   from db import db
-   db.init_app(app) 
+   from db import db,whooshee
+   with app.app_context():
+        db.init_app(app) 
+        whooshee.init_app(app)
+        whooshee.reindex()
+
    app.run(port=5000, debug = True)

@@ -3,6 +3,7 @@ from webargs import fields
 from webargs.flaskparser import use_args
 from models.item import ItemModel
 
+
 class Item(Resource):
     def get(self, _id):
         item = ItemModel.find_by_id(_id)
@@ -45,18 +46,25 @@ class ItemList(Resource):
             'name'          : fields.String(),
             'synopsys'      : fields.String(),
             'creation_date' : fields.DateTime(),
+            'text'          : fields.String(), 
     }
         
     @use_args(args_optional)       
-    def get(self, args):       
-        items = ItemModel.find(**args)
+    def get(self, args):  
+        print(args)
+        if 'text' in args:
+            print('find_text')
+            items = ItemModel.find_text(**args)
+        else:     
+            items = ItemModel.find(**args)
+
         if items:
             itemsJSON = []
             for item in items:
                 itemsJSON.append(item.json())
             return { "items" : itemsJSON}, 200 # OK
         else:
-            return{"message":"Item {} not found".format(args['name'])}, 404 #not found
+            return{"message":"Item not found"}, 404 #not found
 
     @use_args(args_required)         
     def post(self, args):

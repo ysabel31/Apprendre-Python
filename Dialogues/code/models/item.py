@@ -1,6 +1,8 @@
-from db import db
+from db import db,whooshee
 import datetime
+from whoosh.analysis import StemmingAnalyzer
 
+@whooshee.register_model('name', 'synopsys')
 class ItemModel(db.Model):
     __tablename__ = 'items'
     
@@ -59,14 +61,19 @@ class ItemModel(db.Model):
         return cls.query.filter_by(id=_id).first()        
 
     @classmethod
+    def find_text(cls,text):
+        print(text)
+        return cls.query.whooshee_search(text).all()    
+
+    @classmethod
     def find(cls,
-             creator_id = None, 
-             media_id = None, 
+             creator_id  = None, 
+             media_id    = None, 
              category_id = None, 
-             EAN = None,                  
-             ASIN = None, 
-             name = None, 
-             strict= None):
+             EAN         = None,                  
+             ASIN        = None, 
+             name        = None, 
+             strict      = None):
 
         filters = []
 
