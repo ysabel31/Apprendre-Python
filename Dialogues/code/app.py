@@ -12,6 +12,7 @@ from resources.creator import Creator, CreatorList
 from resources.media import Media, MediaList
 from resources.item import Item, ItemList
 from models.item import ItemModel
+from flask_restful_swagger import swagger
 
 #jsonify is a method not a class
 app = Flask(__name__)
@@ -24,7 +25,15 @@ app.secret_key= 'Breizh_or_not_Breizh'
 
 # set the location for the whoosh index
 app.config['WHOOSHEE_DIR'] = '../whoosh_index'
-api = Api(app)
+
+#api = Api(app)
+# Wrapp API
+api = swagger.docs(Api(app), apiVersion='0.1',
+                             basePath='http://localhost:5000',
+                             resourcePath='/',
+                             produces=["application/json", "text/html"],
+                             api_spec_url='/api/spec',
+                             description='Dialogues API')
 
 @app.before_first_request
 def create_tables():

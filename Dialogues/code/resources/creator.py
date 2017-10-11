@@ -2,9 +2,38 @@ from flask_restful import Resource
 from webargs import fields
 from webargs.flaskparser import use_args
 from models.creator import CreatorModel
+from flask_restful_swagger import swagger
 
 class Creator(Resource):
+    "Creator resource"
+    @swagger.operation(
+        notes='Get a creator item by ID',
+        responseClass = CreatorModel.__name__,
+        nickname      = 'get',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Creator id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Creator found"
+            },
+            {
+              "code": 404,
+              "message": "Creator not found"
+            }
+        ]
+    )
+
     def get(self, _id):
+        
         creator = CreatorModel.find_by_id(_id)
     
         if creator:
