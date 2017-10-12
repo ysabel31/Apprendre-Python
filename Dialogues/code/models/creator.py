@@ -4,18 +4,18 @@ from flask_restful_swagger import swagger
 @swagger.model
 class CreatorModel(db.Model):
     __tablename__ = 'creators'
-
+    
     id = db.Column(db.Integer, primary_key=True)
     
     firstname = db.Column(db.String(80))
     lastname = db.Column(db.String(80))
-
+    
     def __init__(self, lastname, firstname=None):
         if firstname:
             self.firstname = firstname
         if lastname:    
             self.lastname = lastname
-
+                
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()    
@@ -49,3 +49,4 @@ class CreatorModel(db.Model):
             return cls.query.filter(*filters).all()
         else: 
             return cls.query.all()
+    

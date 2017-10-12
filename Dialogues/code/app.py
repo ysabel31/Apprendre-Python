@@ -4,6 +4,7 @@
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT
+from flask_restful_swagger import swagger
 
 from security import authenticate, identity
 from resources.user import User, UserList, UserRegister
@@ -12,7 +13,7 @@ from resources.creator import Creator, CreatorList
 from resources.media import Media, MediaList
 from resources.item import Item, ItemList
 from models.item import ItemModel
-from flask_restful_swagger import swagger
+
 
 #jsonify is a method not a class
 app = Flask(__name__)

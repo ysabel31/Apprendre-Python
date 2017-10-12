@@ -6,6 +6,7 @@ from flask_restful_swagger import swagger
 
 class Creator(Resource):
     "Creator resource"
+
     @swagger.operation(
         notes='Get a creator item by ID',
         responseClass = CreatorModel.__name__,
@@ -31,9 +32,7 @@ class Creator(Resource):
             }
         ]
     )
-
-    def get(self, _id):
-        
+    def get(self, _id):        
         creator = CreatorModel.find_by_id(_id)
     
         if creator:
@@ -41,14 +40,40 @@ class Creator(Resource):
         else:
             return{"message":"Creator {} not found".format(_id)}, 404 #not found
 
+    @swagger.operation(
+        notes='Delete a creator item by id',
+        responseClass = CreatorModel.__name__,
+        nickname      = 'delete',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Creator id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Creator deleted"
+            },
+            {
+              "code": 404,
+              "message": "Creator to delete not found"
+            }
+        ]
+    )        
     def delete(self, _id):
         creator = CreatorModel.find_by_id(_id)
         if creator:
             creator.delete_from_db()
             return {'message': "Creator id {} has been deleted".format(_id)},200
-        return {'message': "No Creator id {} to delete".format(_id)},200
+        return {'message': "No Creator id {} to delete".format(_id)},404
 
 class CreatorList(Resource):    
+    "Creator List resource"
 
     args_required = {
          'lastname'  : fields.String(required = True,
@@ -68,8 +93,43 @@ class CreatorList(Resource):
             return {"message":"Creator lastname {} {} ".format(args['lastname'],msg)}
         elif 'firstname' in args.keys():                    
             return {"message":"Creator firstname {} {} ".format(args['firstname'],msg)}
-        
-    @use_args(args_optional)       
+
+    
+         
+    @swagger.operation(
+        notes='Get a creator list using lastname and/or firstname as filters',
+        responseClass = [CreatorModel.__name__],
+        nickname      = 'get',
+        parameters    = [
+            {
+              "name": "lastname",
+              "description": "Creator lastname",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "query"
+            },
+            {
+              "name": "firstname",
+              "description": "Creator firstname",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "query"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Creator(s) found"
+            },
+            {
+              "code": 404,
+              "message": "Creator(s) not found"
+            }
+        ]
+    )
+    @use_args(args_optional)  
     def get(self,args):       
         creators = CreatorModel.find(**args)        
         if creators:
