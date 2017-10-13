@@ -1,9 +1,40 @@
 from flask_restful import Resource
+from flask_restful_swagger import swagger
+
 from webargs import fields
 from webargs.flaskparser import use_args
+
 from models.category import CategoryModel
 
 class Category(Resource):
+    "Category resource"
+
+    # GET
+    @swagger.operation(
+        notes='Get a category item by ID',
+        responseClass = CategoryModel.__name__,
+        nickname      = 'get',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Category id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Category found"
+            },
+            {
+              "code": 404,
+              "message": "Category not found"
+            }
+        ]
+    )
     def get(self, _id):
         category = CategoryModel.find_by_id(_id)
     
@@ -11,15 +42,42 @@ class Category(Resource):
             return category.json(), 200 # OK
         else:
             return{"message":"Category {} not found".format(_id)}, 404 #not found
-
+    
+     # DELETE        
+    @swagger.operation(
+        notes='Delete a category item by id',
+        responseClass = CategoryModel.__name__,
+        nickname      = 'delete',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Category id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Category deleted"
+            },
+            {
+              "code": 404,
+              "message": "Category to delete not found"
+            }
+        ]
+    )      
     def delete(self, _id):
         category = CategoryModel.find_by_id(_id)
         if category:
             category.delete_from_db()
             return {'message': "Category id {} has been deleted".format(_id)},200
-        return {'message': "No Category id {} to delete".format(_id)},200
+        return {'message': "No Category id {} to delete".format(_id)},404
 
 class CategoryList(Resource):    
+    "CategoryList resource"
 
     args_required = {
          'name'  : fields.String(required = True,
@@ -30,6 +88,32 @@ class CategoryList(Resource):
          'name'  : fields.String(required = False),
     }
 
+    # GET      
+    @swagger.operation(
+        notes='Get a category list, name may be use as filter',
+        responseClass = [CategoryModel.__name__],
+        nickname      = 'get',
+        parameters    = [
+            {
+              "name": "name",
+              "description": "Category name",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "query"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Category(ies) found"
+            },
+            {
+              "code": 404,
+              "message": "Category(ies) not found"
+            }
+        ]
+    )
     @use_args(args_optional)       
     def get(self,args):       
         categories = CategoryModel.find(**args)        
@@ -41,7 +125,33 @@ class CategoryList(Resource):
             return {"categories":categoriesJSON},200 #OK    
         else:
             return{"message" : "Category named {} not found ".format(args['name'])}, 404 #not found
-
+    
+    # POST
+    @swagger.operation(
+        notes='Insert a category, name is required',
+        responseClass = [CategoryModel.__name__],
+        nickname      = 'post',
+        parameters    = [
+            {
+              "name": "name",
+              "description": "Category name",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 201,
+              "message": "Category inserted"
+            },
+            {
+              "code": 400,
+              "message": "Category already exists"
+            }
+        ]
+    )      
     @use_args(args_required)        
     def post(self, args):
         
@@ -55,11 +165,3 @@ class CategoryList(Resource):
         category.save_to_db()
 
         return{"message":"Category {} created successfully".format(args['name'])}, 201 # created
-
-    @use_args(args_required)         
-    def delete(self,args):
-        category = CategoryModel.find_by_name(**args)
-        if category:
-            category.delete_from_db()
-            return {'message': "Category named {} has been deleted".format(args['name'])},200
-        return {'message': "No Category named {} to delete".format(args['name'])},200

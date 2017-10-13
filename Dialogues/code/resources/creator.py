@@ -1,12 +1,15 @@
 from flask_restful import Resource
+from flask_restful_swagger import swagger
+
 from webargs import fields
 from webargs.flaskparser import use_args
 from models.creator import CreatorModel
-from flask_restful_swagger import swagger
+
 
 class Creator(Resource):
     "Creator resource"
 
+    # GET
     @swagger.operation(
         notes='Get a creator item by ID',
         responseClass = CreatorModel.__name__,
@@ -40,6 +43,7 @@ class Creator(Resource):
         else:
             return{"message":"Creator {} not found".format(_id)}, 404 #not found
 
+    # DELETE        
     @swagger.operation(
         notes='Delete a creator item by id',
         responseClass = CreatorModel.__name__,
@@ -86,6 +90,7 @@ class CreatorList(Resource):
          'firstname'  : fields.String(required = False),         
     }
 
+    # Error messages
     def ErrMsg(self,msg,args):
         if 'lastname' in args.keys() & 'firstname' in args.keys():
             return {"message":"Creator called {} {} {}".format(args['lastname'],args['firstname'],msg)}
@@ -95,7 +100,7 @@ class CreatorList(Resource):
             return {"message":"Creator firstname {} {} ".format(args['firstname'],msg)}
 
     
-         
+    # GET      
     @swagger.operation(
         notes='Get a creator list using lastname and/or firstname as filters',
         responseClass = [CreatorModel.__name__],
@@ -140,6 +145,40 @@ class CreatorList(Resource):
         else:
             return self.ErrMsg("not found",args), 404 # Not found
 
+    # POST
+    @swagger.operation(
+        notes='Insert a creator, lastname is required',
+        responseClass = [CreatorModel.__name__],
+        nickname      = 'post',
+        parameters    = [
+            {
+              "name": "lastname",
+              "description": "Creator lastname",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "body"
+            },
+            {
+              "name": "firstname",
+              "description": "Creator firstname",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "body"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 201,
+              "message": "Creator inserted"
+            },
+            {
+              "code": 400,
+              "message": "Creator already exists"
+            }
+        ]
+    )         
     @use_args(args_required)        
     def post(self, args):
         if CreatorModel.find(**args):
@@ -152,11 +191,3 @@ class CreatorList(Resource):
         creator.save_to_db()
 
         return self.ErrMsg("created successfully",args), 201 # created
-
-    @use_args(args_required)         
-    def delete(self,args):
-        creator = CreatorModel.find(**args)
-        if creator:
-            creator.delete_from_db()
-            return self.ErrMsg("has been deleted",args), 200
-        return self.ErrMsg("to delete",args), 200    

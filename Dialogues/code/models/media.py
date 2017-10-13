@@ -1,5 +1,8 @@
 from db import db
 
+from flask_restful_swagger import swagger
+
+@swagger.model
 class MediaModel(db.Model):
     __tablename__ = 'media'  
     id = db.Column(db.Integer, primary_key=True)
