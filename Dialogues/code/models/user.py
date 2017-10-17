@@ -1,5 +1,7 @@
 from db import db
+from flask_restful_swagger import swagger
 
+@swagger.model
 class UserModel(db.Model):    
     __tablename__ = 'users'
 

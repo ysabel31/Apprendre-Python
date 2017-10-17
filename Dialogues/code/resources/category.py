@@ -43,7 +43,7 @@ class Category(Resource):
         else:
             return{"message":"Category {} not found".format(_id)}, 404 #not found
     
-     # DELETE        
+    # DELETE        
     @swagger.operation(
         notes='Delete a category item by id',
         responseClass = CategoryModel.__name__,
@@ -124,7 +124,7 @@ class CategoryList(Resource):
                 categoriesJSON.append(category.json())
             return {"categories":categoriesJSON},200 #OK    
         else:
-            return{"message" : "Category named {} not found ".format(args['name'])}, 404 #not found
+            return{"message" : "Category not found "}, 404 #not found
     
     # POST
     @swagger.operation(
@@ -152,9 +152,8 @@ class CategoryList(Resource):
             }
         ]
     )      
-    @use_args(args_required)        
-    def post(self, args):
-        
+    @use_args(args_required)       
+    def post(self,args):        
         if CategoryModel.find_by_name(**args):
             return {"message":"A category named {} already exists".format(args['name'])}, 400 # Bad request
 
