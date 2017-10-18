@@ -1,10 +1,40 @@
 from flask_restful import Resource
+from flask_restful_swagger import swagger
+
 from webargs import fields
 from webargs.flaskparser import use_args
 from models.item import ItemModel
 
 
 class Item(Resource):
+    "Item Resource"
+
+    #GET
+    @swagger.operation(
+        notes='Get an item by ID',
+        responseClass = ItemModel.__name__,
+        nickname      = 'get',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Item id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Item found"
+            },
+            {
+              "code": 404,
+              "message": "Item not found"
+            }
+        ]
+    )
     def get(self, _id):
         item = ItemModel.find_by_id(_id)
         if item:
@@ -12,6 +42,32 @@ class Item(Resource):
         else:
             return{"message":"Item id not found"}, 404
 
+    # DELETE        
+    @swagger.operation(
+        notes='Delete an item by id',
+        responseClass = ItemModel.__name__,
+        nickname      = 'delete',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Item id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            }
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Item deleted"
+            },
+            {
+              "code": 404,
+              "message": "Item to delete not found"
+            }
+        ]
+    )        
     def delete(self, _id):
         item = ItemModel.find_by_id(_id)
         
@@ -33,22 +89,87 @@ class ItemList(Resource):
             'ASIN'          : fields.Integer(),
             'name'          : fields.String(required=True,
                                             error_messages = {"required":"Name cannot be blank"}),
-            'synopsys'      : fields.String(),
-            'creation_date' : fields.DateTime(),
+            'synopsys'      : fields.String(required=False),
+            'creation_date' : fields.DateTime(required=False),
     }
 
     args_optional = {
             'creator_id'    : fields.Integer(required=False),
             'media_id'      : fields.Integer(required=False),
             'category_id'   : fields.Integer(required=False),
-            'EAN'           : fields.Integer(),
-            'ASIN'          : fields.Integer(),
-            'name'          : fields.String(),
-            'synopsys'      : fields.String(),
-            'creation_date' : fields.DateTime(),
-            'text'          : fields.String(), 
+            'EAN'           : fields.Integer(required=False),
+            'ASIN'          : fields.Integer(required=False),
+            'name'          : fields.String(required=False),
+            'synopsys'      : fields.String(required=False),
+            'creation_date' : fields.DateTime(required=False),
+            'text'          : fields.String(required=False), 
     }
-        
+    # GET      
+    @swagger.operation(
+        notes='Get an items list',
+        responseClass = [ItemModel.__name__],
+        nickname      = 'get',
+        parameters    = [
+            {
+              "name": "creator_id",
+              "description": "Item creator id",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "media_id",
+              "description": "Item media id",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "category_id",
+              "description": "Item category id",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "EAN",
+              "description": "Item EAN",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "ASIN",
+              "description": "Item EAN",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "name",
+              "description": "Item name",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "string ",
+              "paramType": "query"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Item(s) found"
+            },
+            {
+              "code": 404,
+              "message": "Item(s) not found"
+            }
+        ]
+    )    
     @use_args(args_optional)       
     def get(self, args):  
         print(args)
@@ -66,6 +187,72 @@ class ItemList(Resource):
         else:
             return{"message":"Item not found"}, 404 #not found
 
+    # POST      
+    @swagger.operation(
+        notes='Get an items list',
+        responseClass = [ItemModel.__name__],
+        nickname      = 'get',
+        parameters    = [
+            {
+              "name": "creator_id",
+              "description": "Item creator id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "media_id",
+              "description": "Item media id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "category_id",
+              "description": "Item category id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "EAN",
+              "description": "Item EAN",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "ASIN",
+              "description": "Item EAN",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "name",
+              "description": "Item name",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string ",
+              "paramType": "query"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 201,
+              "message": "Item inserted"
+            },
+            {
+              "code": 400,
+              "message": "Item already exists"
+            }
+        ]
+    )           
     @use_args(args_required)         
     def post(self, args):
         
@@ -77,14 +264,4 @@ class ItemList(Resource):
         # for each of the keys in data say key = value  
         # ie name = value
         item.save_to_db()    
-        return{"message":"item {} created successfully".format(args['name'])}, 201 # crea
-
-    @use_args(args_required)         
-    def delete(self, args):
-        item = ItemModel.find(**args)
-
-        if item:
-            item.delete_from_db()
-            return {'message': "item {} has been deleted".format(args['name'])},200    
-
-        return {'message': "No item {} to delete".format(args['namecreator_id'])},200            
+        return{"message":"item {} created successfully".format(args['name'])}, 201 # created 

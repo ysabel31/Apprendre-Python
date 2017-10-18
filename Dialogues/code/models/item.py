@@ -1,8 +1,10 @@
+from flask_restful_swagger import swagger
 from db import db,whooshee
 import datetime
 from whoosh.analysis import StemmingAnalyzer
 
 @whooshee.register_model('name', 'synopsys')
+@swagger.model
 class ItemModel(db.Model):
     __tablename__ = 'items'
     

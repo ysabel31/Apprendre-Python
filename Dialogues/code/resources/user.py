@@ -153,11 +153,11 @@ class UserRegister(Resource):
         responseMessages = [
             {
               "code": 201,
-              "message": "Category inserted"
+              "message": "User inserted"
             },
             {
               "code": 400,
-              "message": "Category already exists"
+              "message": "User already exists"
             }
         ]
     )      

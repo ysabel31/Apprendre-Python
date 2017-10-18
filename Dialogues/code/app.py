@@ -64,9 +64,9 @@ api.add_resource(ItemList, '/item')
 if __name__ == '__main__':
    from db import db,whooshee
    with app.app_context():
-        db.init_app(app) 
-        db.create_all()
-        whooshee.init_app(app)
-        whooshee.reindex()
+       db.init_app(app) 
+       db.create_all()
+       whooshee.init_app(app)
+       whooshee.reindex()
 
    app.run(port=5000, debug = True)

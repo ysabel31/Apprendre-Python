@@ -28,9 +28,9 @@ class MediaModel(db.Model):
         return cls.query.filter_by(category=category).first()
 
     @classmethod
-    def find(cls,category=None):
+    def find(cls,_id=None,category=None):
         if category:
-            return cls.query.filter_by(category=category).all()
+            return cls.query.filter_by(id=_id,category=category).all()
         return cls.query.all()    
     
     @classmethod

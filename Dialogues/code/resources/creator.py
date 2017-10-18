@@ -157,7 +157,7 @@ class CreatorList(Resource):
               "required": True,
               "allowMultiple": False,
               "dataType": "string",
-              "paramType": "body"
+              "paramType": "form"
             },
             {
               "name": "firstname",
@@ -165,7 +165,7 @@ class CreatorList(Resource):
               "required": False,
               "allowMultiple": False,
               "dataType": "string",
-              "paramType": "body"
+              "paramType": "form"
             }
         ],
         responseMessages = [
