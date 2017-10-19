@@ -9,6 +9,12 @@ from models.creator import CreatorModel
 class Creator(Resource):
     "Creator resource"
 
+    args_required = {
+         'lastname'  : fields.String(required = True,
+                                     error_messages = { "required": "Creator lastname cannot be blank"}),
+         'firstname' : fields.String(required = False),
+    }   
+
     # GET
     @swagger.operation(
         notes='Get a creator item by ID',
@@ -76,6 +82,60 @@ class Creator(Resource):
             return {'message': "Creator id {} has been deleted".format(_id)},200
         return {'message': "No Creator id {} to delete".format(_id)},404
 
+    # PUT
+    @swagger.operation(
+        notes='Update a creator, id is required',
+        responseClass = [CreatorModel.__name__],
+        nickname      = 'put',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Creator id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "firstname",
+              "description": "Creator firstname",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },            
+            {
+              "name": "lastname",
+              "description": "Creator lastname",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Creator updated"
+            },
+            {
+              "code": 400,
+              "message": "Creator to update not found"
+            }
+        ]
+    )              
+    @use_args(args_required)         
+    def put(self, args, _id):
+        print(args)
+        creator = CreatorModel.find_by_id(_id)
+        if creator:    
+            creator.name = args['firstname']                   
+            creator.name = args['lastname']                   
+            creator.save_to_db()    
+            return {"message":"Creator {} has been updated".format(_id)}, 200
+            
+        return{"message":"Creator id {} doesn't exists".format(_id)}, 400 # media to update not found         
+
 class CreatorList(Resource):    
     "Creator List resource"
 
@@ -112,7 +172,7 @@ class CreatorList(Resource):
               "required": False,
               "allowMultiple": False,
               "dataType": "string",
-              "paramType": "query"
+              "paramType": "form"
             },
             {
               "name": "firstname",
@@ -120,7 +180,7 @@ class CreatorList(Resource):
               "required": False,
               "allowMultiple": False,
               "dataType": "string",
-              "paramType": "query"
+              "paramType": "form"
             }
         ],
         responseMessages = [
@@ -181,9 +241,6 @@ class CreatorList(Resource):
     )         
     @use_args(args_required)        
     def post(self, args):
-        if CreatorModel.find(**args):
-            return self.ErrMsg("already exist",args), 400 # Bad request
-
         creator = CreatorModel(**args)   
         # creator = CreatorModel(data['username'], data['password'])
         # for each of the keys in data say key = value  
@@ -191,3 +248,5 @@ class CreatorList(Resource):
         creator.save_to_db()
 
         return self.ErrMsg("created successfully",args), 201 # created
+
+    

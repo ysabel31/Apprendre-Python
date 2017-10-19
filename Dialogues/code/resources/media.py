@@ -182,7 +182,7 @@ class MediaList(Resource):
               "required": True,
               "allowMultiple": False,
               "dataType": "integer",
-              "paramType": "form"
+              "paramType": "path"
             },
             {
               "name": "category",
@@ -206,14 +206,14 @@ class MediaList(Resource):
     )              
     @use_args(args_put_required)         
     def put(self, args):
-        if MediaModel.find_by_id(args['id']):
-            if MediaModel.find_by_category(args['category']):
-                return{"message":"Category {} already exists".format(args['category'])}, 400 # category exists
-            
-            media = MediaModel(args['category'])   
-            media.id = args['id']   
+        if MediaModel.find_by_category(args['category']):            
+            return{"message":"Media category {} already exists".format(args['category'])}, 400 # category exists
+        
+        media = MediaModel.find_by_id(args['id'])
+        if media:    
+            media.category = args['category']                   
             media.save_to_db()    
-            return {"message":"Media {} has been updated".format(args['id'])}, 200
-
-        return{"message":"Category id {} doesn't exists".format(args['id'])}, 400 # media to update not found        
+            return {"message":"Media category {} has been updated".format(args['id'])}, 200
+            
+        return{"message":"Media id {} doesn't exists".format(args['id'])}, 400 # media to update not found        
         
