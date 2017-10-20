@@ -95,18 +95,18 @@ class Creator(Resource):
               "allowMultiple": False,
               "dataType": "integer",
               "paramType": "path"
-            },
-            {
-              "name": "firstname",
-              "description": "Creator firstname",
-              "required": True,
-              "allowMultiple": False,
-              "dataType": "string",
-              "paramType": "form"
             },            
             {
               "name": "lastname",
               "description": "Creator lastname",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+            {
+              "name": "firstname",
+              "description": "Creator firstname",
               "required": True,
               "allowMultiple": False,
               "dataType": "string",
@@ -129,8 +129,8 @@ class Creator(Resource):
         print(args)
         creator = CreatorModel.find_by_id(_id)
         if creator:    
-            creator.name = args['firstname']                   
-            creator.name = args['lastname']                   
+            creator.firstname = args['firstname']                   
+            creator.lastname  = args['lastname']                   
             creator.save_to_db()    
             return {"message":"Creator {} has been updated".format(_id)}, 200
             

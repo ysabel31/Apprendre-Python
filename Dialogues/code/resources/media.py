@@ -7,7 +7,10 @@ from models.media import MediaModel
 
 class Media(Resource):
     "Media resource"
-
+    args_required = {
+            'category' : fields.String(required=True,
+                                       error_messages = {"required":"Media category cannot be blank"}),
+    }
     # GET
     @swagger.operation(
         notes='Get a media item by ID',
@@ -75,20 +78,60 @@ class Media(Resource):
             return {'message': "media {} has been deleted".format(_id)},200        
 
         return {'message': "No media {} to delete".format(_id)},200        
+
+    # PUT
+    @swagger.operation(
+        notes='Update a media, id is required',
+        responseClass = [MediaModel.__name__],
+        nickname      = 'put',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Media id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "category",
+              "description": "Media category",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Media updated"
+            },
+            {
+              "code": 400,
+              "message": "Media to update not found"
+            }
+        ]
+    )              
+    @use_args(args_required)         
+    def put(self, args, _id):
+        if MediaModel.find_by_category(args['category']):            
+            return{"message":"Media category {} already exists".format(args['category'])}, 400 # category exists
+        
+        media = MediaModel.find_by_id(_id)
+        if media:    
+            media.category = args['category']                   
+            media.save_to_db()    
+            return {"message":"Media category {} has been updated".format(_id)}, 200
+            
+        return{"message":"Media id {} doesn't exists".format(_id)}, 400 # media to update not found        
     
 class MediaList(Resource):    
     "MediaList resource"
 
-    args_put_required = {
-            'id' : fields.String(required=True,
-                                  error_messages = {"required":"Media id cannot be blank"}),
-            'category' : fields.String(required=True,
-                                   error_messages = {"required":"Media category cannot be blank"}),
-    }
-
     args_required = {
-            'category' : fields.String(required=True,
-                                   error_messages = {"required":"Media category cannot be blank"}),
+        'category' : fields.String(required=True,
+                                       error_messages = {"required":"Media category cannot be blank"}),
     }
     
     args_optional = {
@@ -169,51 +212,3 @@ class MediaList(Resource):
         # ie name = value
         media.save_to_db()    
         return{"message":"media {} created successfully".format(args['category'])}, 201 # created
-
-    # PUT
-    @swagger.operation(
-        notes='Update a media, id is required',
-        responseClass = [MediaModel.__name__],
-        nickname      = 'put',
-        parameters    = [
-            {
-              "name": "id",
-              "description": "Media id",
-              "required": True,
-              "allowMultiple": False,
-              "dataType": "integer",
-              "paramType": "path"
-            },
-            {
-              "name": "category",
-              "description": "Media category",
-              "required": True,
-              "allowMultiple": False,
-              "dataType": "string",
-              "paramType": "form"
-            },
-        ],
-        responseMessages = [
-            {
-              "code": 200,
-              "message": "Media updated"
-            },
-            {
-              "code": 400,
-              "message": "Media to update not found"
-            }
-        ]
-    )              
-    @use_args(args_put_required)         
-    def put(self, args):
-        if MediaModel.find_by_category(args['category']):            
-            return{"message":"Media category {} already exists".format(args['category'])}, 400 # category exists
-        
-        media = MediaModel.find_by_id(args['id'])
-        if media:    
-            media.category = args['category']                   
-            media.save_to_db()    
-            return {"message":"Media category {} has been updated".format(args['id'])}, 200
-            
-        return{"message":"Media id {} doesn't exists".format(args['id'])}, 400 # media to update not found        
-        

@@ -8,6 +8,20 @@ from models.item import ItemModel
 
 class Item(Resource):
     "Item Resource"
+    args_required = {
+            'creator_id'    : fields.Integer(required=True,
+                                             error_messages = {"required":"Creator id cannot be blank"}),
+            'media_id'      : fields.Integer(required=True,
+                                             error_messages = {"required":"Media id cannot be blank"}),
+            'category_id'   : fields.Integer(required=True,
+                                             error_messages = {"required":"Category id cannot be blank"}),
+            'EAN'           : fields.Integer(),
+            'ASIN'          : fields.Integer(),
+            'name'          : fields.String(required=True,
+                                            error_messages = {"required":"Name cannot be blank"}),
+            'synopsys'      : fields.String(required=False),
+            'creation_date' : fields.DateTime(required=False),
+    }
 
     #GET
     @swagger.operation(
@@ -16,7 +30,7 @@ class Item(Resource):
         nickname      = 'get',
         parameters    = [
             {
-              "name": "_id",
+              "name": "creator_id",
               "description": "Item id",
               "required": True,
               "allowMultiple": False,
@@ -76,7 +90,105 @@ class Item(Resource):
             return {'message': "item id {} has been deleted".format(item.id)},200        
 
         return {'message': "No item id {} to delete".format(item.category)},200        
-    
+
+    # PUT
+    @swagger.operation(
+        notes='Update an item, id is required',
+        responseClass = [ItemModel.__name__],
+        nickname      = 'put',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Item id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "creator_id",
+              "description": "Creator id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "media_id",
+              "description": "Media id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "category_id",
+              "description": "Category id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "EAN",
+              "description": "EAN",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "form"
+            },
+            {
+              "name": "ASIN",
+              "description": "ASIN",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "form"
+            },
+            {
+              "name": "name",
+              "description": "Item name",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "String",
+              "paramType": "form"
+            },
+            {
+              "name": "synopsis",
+              "description": "Item synopsis",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "String",
+              "paramType": "form"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Creator updated"
+            },
+            {
+              "code": 400,
+              "message": "Creator to update not found"
+            }
+        ]
+    )              
+    @use_args(args_required)         
+    def put(self, args,_id):
+        item = ItemModel.find_by_id(_id)
+        if item:    
+            item.creator_id =  args['creator_id']                   
+            item.media_id   =  args['media_id']                   
+            item.creator_id =  args['category_id']                   
+            item.EAN        =  args['EAN']                   
+            item.ASIN       =  args['ASIN']                   
+            item.name       =  args['name']                               
+            item.save_to_db()    
+            return {"message":"Creator {} has been updated".format(_id)}, 200
+            
+        return{"message":"Creator id {} doesn't exists".format(_id)}, 400 # media to update not found   
+
+
 class ItemList(Resource):    
     args_required = {
             'creator_id'    : fields.Integer(required=True,

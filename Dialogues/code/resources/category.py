@@ -6,8 +6,14 @@ from webargs.flaskparser import use_args
 
 from models.category import CategoryModel
 
+
 class Category(Resource):
     "Category resource"
+
+    args_required = {
+        'name' : fields.String(required = True,
+                               error_messages = { "required": "Category name cannot be blank"}),
+    } 
 
     # GET
     @swagger.operation(
@@ -76,15 +82,57 @@ class Category(Resource):
             return {'message': "Category id {} has been deleted".format(_id)},200
         return {'message': "No Category id {} to delete".format(_id)},404
 
+    # PUT
+    @swagger.operation(
+        notes='Update a category, id is required',
+        responseClass = [CategoryModel.__name__],
+        nickname      = 'put',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "Category id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "name",
+              "description": "Category name",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "Category updated"
+            },
+            {
+              "code": 400,
+              "message": "Category to update not found"
+            }
+        ]
+    )              
+    @use_args(args_required)         
+    def put(self, args, _id):
+        if CategoryModel.find_by_name(args['name']):            
+            return{"message":"Category name {} already exists".format(args['name'])}, 400 # category exists
+        
+        category = CategoryModel.find_by_id(_id)
+        if category:    
+            category.name = args['name']                   
+            category.save_to_db()    
+            return {"message":"Category name {} has been updated".format(_id)}, 200
+            
+        return{"message":"Category id {} doesn't exists".format(_id)}, 400 # media to update not found     
+
+
 class CategoryList(Resource):    
     "CategoryList resource"
-
-    args_put_required = {
-        'id'   : fields.String(required = True,
-                               error_messages = { "required": "Category id cannot be blank"}),
-        'name' : fields.String(required = True,
-                               error_messages = { "required": "Category name cannot be blank"}),
-    }       
+          
     args_required = {
         'name'  : fields.String(required = True,
                                  error_messages = { "required": "Category name cannot be blank"}),
@@ -170,50 +218,3 @@ class CategoryList(Resource):
         category.save_to_db()
 
         return{"message":"Category {} created successfully".format(args['name'])}, 201 # created
-
-    # PUT
-    @swagger.operation(
-        notes='Update a category, id is required',
-        responseClass = [CategoryModel.__name__],
-        nickname      = 'put',
-        parameters    = [
-            {
-              "name": "id",
-              "description": "Category id",
-              "required": True,
-              "allowMultiple": False,
-              "dataType": "integer",
-              "paramType": "path"
-            },
-            {
-              "name": "name",
-              "description": "Category name",
-              "required": True,
-              "allowMultiple": False,
-              "dataType": "string",
-              "paramType": "form"
-            },
-        ],
-        responseMessages = [
-            {
-              "code": 200,
-              "message": "Category updated"
-            },
-            {
-              "code": 400,
-              "message": "Category to update not found"
-            }
-        ]
-    )              
-    @use_args(args_put_required)         
-    def put(self, args):
-        if CategoryModel.find_by_name(args['name']):            
-            return{"message":"Category name {} already exists".format(args['name'])}, 400 # category exists
-        
-        category = CategoryModel.find_by_id(args['id'])
-        if category:    
-            category.name = args['name']                   
-            category.save_to_db()    
-            return {"message":"Category name {} has been updated".format(args['id'])}, 200
-            
-        return{"message":"Category id {} doesn't exists".format(args['id'])}, 400 # media to update not found     

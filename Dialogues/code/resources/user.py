@@ -7,6 +7,13 @@ from models.user import UserModel
 
 class User(Resource):
     "User resource"
+    args_required = {
+            'name'     : fields.String(required=True,
+                                       error_messages = {"required":"User name cannot be blank"}),
+            'password' : fields.String(required=True,
+                                       error_messages = {"required":"User password cannot be blank"}),
+    }
+
     # GET
     @swagger.operation(
         notes='Get a user item by ID',
@@ -71,6 +78,59 @@ class User(Resource):
         if user:
             user.delete_from_db()
         return {'message': "user id {} has been deleted".format(user.id)},200        
+
+    # PUT
+    @swagger.operation(
+        notes='Update a user, id is required',
+        responseClass = [UserModel.__name__],
+        nickname      = 'put',
+        parameters    = [
+            {
+              "name": "_id",
+              "description": "User id",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "path"
+            },
+            {
+              "name": "name",
+              "description": "User name",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+            {
+              "name": "password",
+              "description": "User password",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+        ],
+        responseMessages = [
+            {
+              "code": 200,
+              "message": "User updated"
+            },
+            {
+              "code": 400,
+              "message": "User to update not found"
+            }
+        ]
+    )              
+    @use_args(args_required)         
+    def put(self, args, _id):
+        user = UserModel.find_by_id(_id)
+        if user:    
+            user.name = args['name']                   
+            user.password = args['password']                   
+            user.save_to_db()    
+            return {"message":"User id {} has been updated".format(_id)}, 200
+            
+        return{"message":"User id {} doesn't exists".format(_id)}, 400 # media to update not found        
     
 class UserList(Resource):    
     "UserList resource"    
