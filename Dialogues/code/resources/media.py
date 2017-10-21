@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask_restful_swagger import swagger
+from flask_jwt import jwt_required
 
 from webargs import fields
 from webargs.flaskparser import use_args
@@ -11,7 +12,8 @@ class Media(Resource):
             'category' : fields.String(required=True,
                                        error_messages = {"required":"Media category cannot be blank"}),
     }
-    # GET
+
+    # GET       
     @swagger.operation(
         notes='Get a media item by ID',
         responseClass = MediaModel.__name__,
@@ -37,6 +39,7 @@ class Media(Resource):
             }
         ]
     )
+    #@jwt_required()
     def get(self, _id):
         media = MediaModel.find_by_id(_id)
         if media:

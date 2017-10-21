@@ -7,6 +7,7 @@ from flask_jwt import JWT
 from flask_restful_swagger import swagger
 
 from security import authenticate, identity
+
 from resources.user import User, UserList, UserRegister
 from resources.category import Category, CategoryList
 from resources.creator import Creator, CreatorList
@@ -22,6 +23,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dialogues.db'
 # turn off the Flask SQLAlchemy modification tracker 
 # it does not turn off the SQLAlchemy modification tracker 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 app.secret_key= 'Breizh_or_not_Breizh'
 
 # set the location for the whoosh index

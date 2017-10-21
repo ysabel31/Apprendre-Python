@@ -14,6 +14,11 @@ class User(Resource):
                                        error_messages = {"required":"User password cannot be blank"}),
     }
 
+    def __init__(self, _id, username, password):
+        self.id = _id
+        self.username = username
+        self.password = password
+    
     # GET
     @swagger.operation(
         notes='Get a user item by ID',
