@@ -17,7 +17,7 @@ class ItemModel(db.Model):
     name          = db.Column(db.String(80))    
     synopsys      = db.Column(db.String(1024))
     creation_date = db.Column(db.DateTime)
-
+    modification_date = db.Column(db.DateTime)
     def __init__(self, 
                  creator_id, 
                  media_id, 

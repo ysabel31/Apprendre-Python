@@ -15,20 +15,8 @@ from resources.media import Media, MediaList
 from resources.item import Item, ItemList
 from models.item import ItemModel
 
-
-#jsonify is a method not a class
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dialogues.db'
-
-# turn off the Flask SQLAlchemy modification tracker 
-# it does not turn off the SQLAlchemy modification tracker 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-app.secret_key= 'Breizh_or_not_Breizh'
-
-# set the location for the whoosh index
-app.config['WHOOSHEE_DIR'] = '../whoosh_index'
-
+app.config.from_pyfile('config.py')
 #api = Api(app)
 # Wrapp API
 api = swagger.docs(Api(app), apiVersion='0.1',
@@ -37,10 +25,6 @@ api = swagger.docs(Api(app), apiVersion='0.1',
                              produces=["application/json", "text/html"],
                              api_spec_url='/api/spec',
                              description='Dialogues API')
-
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
 jwt = JWT(app, authenticate, identity) # /auth
 
@@ -66,8 +50,7 @@ api.add_resource(ItemList, '/item')
 if __name__ == '__main__':
    from db import db,whooshee
    with app.app_context():
-       db.init_app(app) 
-       db.create_all()
+       db.init_app(app)        
        whooshee.init_app(app)
        whooshee.reindex()
 
