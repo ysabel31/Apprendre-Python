@@ -30,7 +30,7 @@ class Item(Resource):
         nickname      = 'get',
         parameters    = [
             {
-              "name": "creator_id",
+              "name": "_creator_id",
               "description": "Item id",
               "required": True,
               "allowMultiple": False,
@@ -146,6 +146,14 @@ class Item(Resource):
               "paramType": "form"
             },
             {
+              "name": "ASIN_LINK_AMAZON",
+              "description": "A link to Amazon regarding this item",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": "string",
+              "paramType": "form"
+            },
+            {
               "name": "name",
               "description": "Item name",
               "required": True,
@@ -177,12 +185,14 @@ class Item(Resource):
     def put(self, args,_id):
         item = ItemModel.find_by_id(_id)
         if item:    
-            item.creator_id =  args['creator_id']                   
-            item.media_id   =  args['media_id']                   
-            item.creator_id =  args['category_id']                   
-            item.EAN        =  args['EAN']                   
-            item.ASIN       =  args['ASIN']                   
-            item.name       =  args['name']                               
+            item.creator_id   =  args['creator_id']                   
+            item.media_id     =  args['media_id']                   
+            item.creator_id   =  args['category_id']                   
+            item.EAN          =  args['EAN']                   
+            item.ASIN         =  args['ASIN']  
+            item.ASIN         =  args['ASIN_LINK_AMAZON']                   
+            item.name         =  args['name']                  
+            modification_date = datetime.datetime.now()             
             item.save_to_db()    
             return {"message":"Creator {} has been updated".format(_id)}, 200
             
@@ -191,30 +201,34 @@ class Item(Resource):
 
 class ItemList(Resource):    
     args_required = {
-            'creator_id'    : fields.Integer(required=True,
-                                             error_messages = {"required":"Creator id cannot be blank"}),
-            'media_id'      : fields.Integer(required=True,
-                                             error_messages = {"required":"Media id cannot be blank"}),
-            'category_id'   : fields.Integer(required=True,
-                                             error_messages = {"required":"Category id cannot be blank"}),
-            'EAN'           : fields.Integer(),
-            'ASIN'          : fields.Integer(),
-            'name'          : fields.String(required=True,
-                                            error_messages = {"required":"Name cannot be blank"}),
-            'synopsys'      : fields.String(required=False),
-            'creation_date' : fields.DateTime(required=False),
+            'creator_id'        : fields.List(fields.Integer(required=True,
+                                                             error_messages = {"required":"Creator id cannot be blank"})),
+            'media_id'          : fields.Integer(required=True,
+                                                 error_messages = {"required":"Media id cannot be blank"}),
+            'category_id'       : fields.Integer(required=True,
+                                                 error_messages = {"required":"Category id cannot be blank"}),
+            'EAN'               : fields.Integer(required=False),
+            'ASIN'              : fields.Integer(required=False),
+            'ASIN_LINK_AMAZON'  : fields.String(required=False),
+            'name'              : fields.String(required=True,
+                                                error_messages = {"required":"Name cannot be blank"}),
+            'synopsys'          : fields.String(required=False),
+            'creation_date'     : fields.DateTime(required=False),
+            'modification_date' : fields.DateTime(required=False),
     }
 
     args_optional = {
-            'creator_id'    : fields.Integer(required=False),
-            'media_id'      : fields.Integer(required=False),
-            'category_id'   : fields.Integer(required=False),
-            'EAN'           : fields.Integer(required=False),
-            'ASIN'          : fields.Integer(required=False),
-            'name'          : fields.String(required=False),
-            'synopsys'      : fields.String(required=False),
-            'creation_date' : fields.DateTime(required=False),
-            'text'          : fields.String(required=False), 
+            '_creator_id'       : fields.Integer(required=False),
+            'media_id'          : fields.Integer(required=False),
+            'category_id'       : fields.Integer(required=False),
+            'EAN'               : fields.Integer(required=False),
+            'ASIN'              : fields.Integer(required=False),
+            'ASIN_LINK_AMAZON'  : fields.String(required=False),
+            'name'              : fields.String(required=False),
+            'synopsys'          : fields.String(required=False),
+            'creation_date'     : fields.DateTime(required=False),
+            'modification_date' : fields.DateTime(required=False),
+            'text'              : fields.String(required=False), 
     }
     # GET      
     @swagger.operation(
@@ -223,7 +237,7 @@ class ItemList(Resource):
         nickname      = 'get',
         parameters    = [
             {
-              "name": "creator_id",
+              "name": "_creator_id",
               "description": "Item creator id",
               "required": False,
               "allowMultiple": False,
@@ -256,10 +270,18 @@ class ItemList(Resource):
             },
             {
               "name": "ASIN",
-              "description": "Item EAN",
+              "description": "Item ASIN",
               "required": False,
               "allowMultiple": False,
               "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "ASIN_LINK_AMAZON",
+              "description": "A link to Amazon regarding this item",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "string",
               "paramType": "query"
             },
             {
@@ -284,7 +306,6 @@ class ItemList(Resource):
     )    
     @use_args(args_optional)       
     def get(self, args):  
-        print(args)
         if 'text' in args:
             print('find_text')
             items = ItemModel.find_text(**args)
@@ -301,15 +322,15 @@ class ItemList(Resource):
 
     # POST      
     @swagger.operation(
-        notes='Get an items list',
+        notes='Post an items list',
         responseClass = [ItemModel.__name__],
-        nickname      = 'get',
+        nickname      = 'post',
         parameters    = [
             {
               "name": "creator_id",
               "description": "Item creator id",
               "required": True,
-              "allowMultiple": False,
+              "allowMultiple": True,
               "dataType": "integer",
               "paramType": "query"
             },
@@ -339,7 +360,15 @@ class ItemList(Resource):
             },
             {
               "name": "ASIN",
-              "description": "Item EAN",
+              "description": "Item ASIN",
+              "required": False,
+              "allowMultiple": False,
+              "dataType": "integer",
+              "paramType": "query"
+            },
+            {
+              "name": "ASIN_LINK_AMAZON",
+              "description": "A link to Amazon regarding this item",
               "required": False,
               "allowMultiple": False,
               "dataType": "integer",
@@ -367,7 +396,7 @@ class ItemList(Resource):
     )           
     @use_args(args_required)         
     def post(self, args):
-        
+        print("args".format(args['creator_id']))
         if ItemModel.find(strict=True, **args):
             return {"message":"An item named {} already exists".format(args['name'])}, 400
 
