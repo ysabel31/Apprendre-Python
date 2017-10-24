@@ -29,7 +29,7 @@ class ItemModel(db.Model):
     modification_date = db.Column(db.DateTime)
     
     def __init__(self, 
-                 item_creators, 
+                 _creator_id, 
                  media_id, 
                  category_id, 
                  EAN               = None,                  
@@ -38,8 +38,11 @@ class ItemModel(db.Model):
                  name              = None, 
                  synopsys          = None,
                  modification_date = None):
-
-        self.item_creators     = item_creators 
+        from models.creator import CreatorModel
+        for creator_id in _creator_id:
+            print(creator_id)
+            Creator= CreatorModel.find_by_id(creator_id)
+            self.item_creators.append(Creator)
         self.media_id          = media_id
         self.category_id       = category_id
         
