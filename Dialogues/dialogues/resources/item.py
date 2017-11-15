@@ -1,3 +1,4 @@
+import datetime
 from flask_restful import Resource
 from flask_restful_swagger import swagger
 
@@ -5,7 +6,8 @@ from webargs import fields
 from webargs.flaskparser import use_args
 from models.item import ItemModel
 from models.creator import CreatorModel
-import datetime
+
+from tasks.item import add_ASIN_LINK_AMAZON
 
 class Item(Resource):
     "Item Resource"
@@ -418,4 +420,7 @@ class ItemList(Resource):
       item = ItemModel(**args)   
       
       item.save_to_db()    
-      return{"message":"Item {} created successfully".format(args['name'])}, 201 # created 
+      print("avant {} ".format(item.id))
+      task = add_ASIN_LINK_AMAZON.delay(item.id)      
+      print("après")
+      return{"message":"Item {} created successfully Celery Task = {} ".format(args['name'],task.task_id)}, 201 # created 

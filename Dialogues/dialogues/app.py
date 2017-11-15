@@ -15,8 +15,13 @@ from resources.media import Media, MediaList
 from resources.item import Item, ItemList
 from models.item import ItemModel
 
+from app_celery import make_celery
+
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
+
+celery_app = make_celery(app)
+
 #api = Api(app)
 # Wrapp API
 api = swagger.docs(Api(app), apiVersion='0.1',
@@ -44,14 +49,3 @@ api.add_resource(MediaList, '/media')
 api.add_resource(Item,'/item/<int:_id>')
 api.add_resource(ItemList, '/item')
 #api.add_resource(Media, '/media') 
-
-# __main__ is the special name assign by python for the file we run
-# allow us to not execute app.run if app.py is imported into another program
-if __name__ == '__main__':
-   from db import db,whooshee
-   with app.app_context():
-       db.init_app(app)        
-       whooshee.init_app(app)
-       whooshee.reindex()
-
-   app.run(port=5000, debug = True)

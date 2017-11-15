@@ -1,5 +1,5 @@
 from flask_restful_swagger import swagger
-from db import db,whooshee
+from db import db, whooshee
 import datetime
 from whoosh.analysis import StemmingAnalyzer
 
@@ -40,9 +40,10 @@ class ItemModel(db.Model):
                  modification_date = None):
         from models.creator import CreatorModel
         for creator_id in _creator_id:
-            print(creator_id)
+            #print(creator_id)
             Creator= CreatorModel.find_by_id(creator_id)
             self.item_creators.append(Creator)
+
         self.media_id          = media_id
         self.category_id       = category_id
         
@@ -70,7 +71,7 @@ class ItemModel(db.Model):
                  'category_id'      : self.category_id,
                  'EAN'              : self.EAN,
                  'ASIN'             : self.ASIN,
-                 'ASIN_LINK_AMAZON' : self.ASIN,
+                 'ASIN_LINK_AMAZON' : self.ASIN_LINK_AMAZON,
                  'name'             : self.name,
                  'synopsys'         : self.synopsys,
                  'creation_date'    : self.creation_date.isoformat(),
@@ -80,7 +81,7 @@ class ItemModel(db.Model):
     def save_to_db(self):
         db.session.add(self)        
         db.session.commit()
-
+        db.session.refresh(self)
     @classmethod
     def find_by_id(cls, _id):
         return cls.query.filter_by(id=_id).first()        
