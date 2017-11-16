@@ -49,3 +49,13 @@ api.add_resource(MediaList, '/media')
 api.add_resource(Item,'/item/<int:_id>')
 api.add_resource(ItemList, '/item')
 #api.add_resource(Media, '/media') 
+
+def run():
+   from app import app
+   from db import db,whooshee
+   with app.app_context():
+       db.init_app(app)        
+       whooshee.init_app(app)
+       whooshee.reindex()
+
+   app.run(port=5000, debug = True)
